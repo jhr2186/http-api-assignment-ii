@@ -1,0 +1,26 @@
+{
+  "name": "http-api-assignment-ii",
+  "version": "1.0.0",
+  "description": "http assignment 2",
+  "main": "server.js",
+  "scripts": {
+    "start": "node ./src/server.js",
+    "pretest": "eslint ./src --fix",
+    "test": "echo \"Tests complete\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jhr2186/http-api-assignment-ii.git"
+  },
+  "author": "Jake Recoon",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jhr2186/http-api-assignment-ii/issues"
+  },
+  "devDependencies": {
+    "eslint": "^4.7.1",
+    "eslint-config-airbnb": "^15.1.0",
+    "eslint-plugin-import": "^2.7.0"
+  },
+  "homepage": "https://github.com/jhr2186/http-api-assignment-ii#readme"
+}
