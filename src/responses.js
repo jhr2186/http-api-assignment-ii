@@ -1,9 +1,13 @@
 const fs = require('fs');
+const crypto = require('crypto');
 
 const index = fs.readFileSync(`${__dirname}/../client/client.html`);
 const css = fs.readFileSync(`${__dirname}/../client/style.css`);
 
 const users = {};
+
+let etag = crypto.createHash('sha1').update(JSON.stringify(users));
+let digest = etag.digest('hex');
 
 const respond = (request, response, content, type) => {
   response.writeHead(200, { 'Content-Type': type });
@@ -12,13 +16,13 @@ const respond = (request, response, content, type) => {
 };
 
 const respondJSON = (request, response, status, object) => {
-  response.writeHead(status, { 'Content-Type': 'application/json' });
+  response.writeHead(status, { 'Content-Type': 'application/json' , etag: digest});
   response.write(JSON.stringify(object));
   response.end();
 };
 
 const respondJSONMeta = (request, response, status) => {
-  response.writeHead(status, { 'Content-Type': 'application/json' });
+  response.writeHead(status, { 'Content-Type': 'application/json' , etag: digest});
   response.end();
 };
 
@@ -26,8 +30,20 @@ const getUsers = (request, response) => {
   const responseJSON = {
     users,
   };
+  
+  if (request.headers['if-none-match'] === digest) {
+    return respondJSONMeta(request, response, 304);
+  }
 
-  respondJSON(request, response, 200, responseJSON);
+  return respondJSON(request, response, 200, responseJSON);
+};
+
+const getUsersMeta = (request, response) => {
+  if (request.headers['if-none-match'] === digest) {
+    return respondJSONMeta(request, response, 304);
+  }
+
+  return respondJSONMeta(request, response, 200);
 };
 
 const addUser = (request, response, body) => {
@@ -50,6 +66,9 @@ const addUser = (request, response, body) => {
 
   users[body.name].name = body.name;
   users[body.name].age = body.age;
+    
+  etag = crypto.createHash('sha1').update(JSON.stringify(users));
+  digest = etag.digest('hex');
 
   if (responseCode === 201) {
     responseJSON.message = 'Created Successfully';
@@ -68,7 +87,15 @@ const getCSS = (request, response) => {
 };
 
 const notFound = (request, response) => {
-  respondJSONMeta(request, response, 404);  
+  const responseJSON = {
+    message: 'The page you are looking for was not found',
+  };
+
+  respondJSON(request, response, 404, responseJSON);
+};
+
+const notFoundMeta = (request, response) => {
+  respondJSONMeta(request, response, 404);
 };
 
 module.exports = {
@@ -76,5 +103,7 @@ module.exports = {
   getCSS,
   getUsers,
   addUser,
+  getUsersMeta,
   notFound,
+  notFoundMeta,
 };

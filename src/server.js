@@ -36,10 +36,18 @@ const handleGet = (request, response, parsedUrl) => {
     responseHandler.getCSS(request, response);
   } else if (parsedUrl.pathname === '/getUsers') {
     responseHandler.getUsers(request, response);
-  } else if (parsedUrl.pathname === '/notReal'){
-    responseHandler.notFound(request, response);  
+  } else if (parsedUrl.pathname === '/notReal') {
+    responseHandler.notFound(request, response);
   } else {
     responseHandler.getIndex(request, response);
+  }
+};
+
+const handleHead = (request, response, parsedUrl) => {
+  if (parsedUrl.pathname === '/getUsers') {
+    responseHandler.getUsersMeta(request, response);
+  } else {
+    responseHandler.notFoundMeta(request, response);
   }
 };
 
@@ -50,6 +58,8 @@ const onRequest = (request, response) => {
     handlePost(request, response, parsedUrl);
   } else if (request.method === 'GET') {
     handleGet(request, response, parsedUrl);
+  } else if (request.method === 'HEAD') {
+    handleHead(request, response, parsedUrl);
   }
 };
 

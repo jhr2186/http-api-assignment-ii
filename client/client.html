@@ -24,7 +24,7 @@
         }
     };
 
-    const handleResponse = (xhr) => {
+    const handleResponse = (xhr, parseResponse) => {
         const content = document.querySelector('#content');
         
         switch(xhr.status){
@@ -42,13 +42,15 @@
                 break;
             case 404:
                 content.innerHTML = "<b>Resource not found</b>";
-                return;
+                break;
             default:
                 content.innerHTML = `Error code not implemented by client.`;
                 break;
         }
         
-        parseJSON(xhr, content);
+        if(parseResponse){
+            parseJSON(xhr, content);
+        }
     };
 
     const sendPost = (e, nameForm) => {
@@ -65,7 +67,7 @@
         xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
         xhr.setRequestHeader('Accept', 'application/json');
         
-        xhr.onload = () => handleResponse(xhr);
+        xhr.onload = () => handleResponse(xhr, true);
         
         const formData = `name=${nameField.value}&age=${ageField.value}`;
         
@@ -87,7 +89,11 @@
         xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
         xhr.setRequestHeader('Accept', 'application/json');
         
-        xhr.onload = () => handleResponse(xhr);
+        if(userMethod === 'head'){
+            xhr.onload = () => handleResponse(xhr, false);
+        } else {
+            xhr.onload = () => handleResponse(xhr, true);
+        }
         
         e.preventDefault();
         
